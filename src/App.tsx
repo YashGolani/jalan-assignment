@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Canvas from "./components/Canvas";
 import { exportCanvasAsImage } from "./utils/imageExport";
 import { useDispatch } from "react-redux";
-import { clearCoordinates } from "./features/drawingSlice";
+import { clearCoordinates, undo } from "./features/drawingSlice";
 import defaultImage from "./assets/aerial-multipleroofs.webp";
 
 const App = () => {
@@ -14,10 +14,6 @@ const App = () => {
     if (canvas) {
       exportCanvasAsImage(canvas);
     }
-  };
-
-  const handleClearDrawing = () => {
-    dispatch(clearCoordinates());
   };
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -36,18 +32,6 @@ const App = () => {
       <h1 className="text-2xl font-bold mb-10 mt-14">Roof Drawing App</h1>
       <Canvas image={image} />
       <div className="flex space-x-2 m-4">
-        <button
-          onClick={handleDownload}
-          className="bg-blue-500 hover:bg-blue-700 text-sm lg:text-base text-white font-bold py-2 px-4 rounded"
-        >
-          Download Image
-        </button>
-        <button
-          onClick={handleClearDrawing}
-          className="bg-blue-500 hover:bg-blue-700 text-sm lg:text-base text-white font-bold py-2 px-4 rounded"
-        >
-          Clear Drawing
-        </button>
         <input
           type="file"
           accept="image/*"
@@ -63,6 +47,24 @@ const App = () => {
             Upload Image
           </div>
         </label>
+        <button
+          onClick={() => dispatch(undo())}
+          className="bg-blue-500 hover:bg-blue-700 text-sm lg:text-base text-white font-bold py-2 px-4 rounded"
+        >
+          Undo
+        </button>
+        <button
+          onClick={() => dispatch(clearCoordinates())}
+          className="bg-blue-500 hover:bg-blue-700 text-sm lg:text-base text-white font-bold py-2 px-4 rounded"
+        >
+          Clear Drawing
+        </button>
+        <button
+          onClick={handleDownload}
+          className="bg-blue-500 hover:bg-blue-700 text-sm lg:text-base text-white font-bold py-2 px-4 rounded"
+        >
+          Download Image
+        </button>
       </div>
     </div>
   );

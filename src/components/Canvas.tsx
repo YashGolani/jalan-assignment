@@ -1,8 +1,8 @@
-import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addCoordinates } from "../features/drawingSlice";
-import { RootState } from "../store/store";
 import useCanvas from "../hooks/useCanvas";
+import { RootState } from "../store/store";
+import { useState } from "react";
 
 interface CanvasProps {
   image: string;
@@ -11,6 +11,7 @@ interface CanvasProps {
 const Canvas = ({ image }: CanvasProps) => {
   const dispatch = useDispatch();
   const points = useSelector((state: RootState) => state.drawing.points);
+  const [isFirstClick, setIsFirstClick] = useState(true);
 
   const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = event.currentTarget;
@@ -19,7 +20,13 @@ const Canvas = ({ image }: CanvasProps) => {
       x: event.clientX - rect.left,
       y: event.clientY - rect.top,
     };
-    dispatch(addCoordinates(newPoint));
+
+    if (isFirstClick) {
+      dispatch(addCoordinates(newPoint));
+      setIsFirstClick(false);
+    } else {
+      dispatch(addCoordinates(newPoint));
+    }
   };
 
   const draw = (ctx: CanvasRenderingContext2D) => {
@@ -28,8 +35,16 @@ const Canvas = ({ image }: CanvasProps) => {
     const img = new Image();
     img.src = image;
     img.onload = () => {
-      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // Clear canvas before drawing new image
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
       ctx.drawImage(img, 0, 0, ctx.canvas.width, ctx.canvas.height);
+
+      if (points.length === 1) {
+        ctx.beginPath();
+        ctx.arc(points[0].x, points[0].y, 3, 0, 2 * Math.PI);
+        ctx.fillStyle = "lime";
+        ctx.fill();
+      }
+
       ctx.strokeStyle = "lime";
       ctx.lineWidth = 2;
       ctx.beginPath();
